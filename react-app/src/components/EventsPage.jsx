@@ -1,19 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
 import Navbar from "./Navbar";
 import Hotelcard from "./Hotelcard";
-import { fetchEvents, fallbackEvents } from "../events";
 
-function EventsPage({ user, bookings, onLogout }) {
-  const [stays, setStays] = useState(fallbackEvents);
+function EventsPage({ stays, user, bookings, onLogout }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    fetchEvents()
-      .then((result) => setStays(result.events))
-      .finally(() => setLoading(false));
-  }, []);
   const categories = ["All", ...new Set(stays.map((stay) => stay.category))];
   const filtered = useMemo(
     () =>
@@ -79,15 +71,11 @@ function EventsPage({ user, bookings, onLogout }) {
               <ChevronDown size={15} />
             </div>
           </div>
-          {loading ? (
-            <div className="status">Loading stays...</div>
-          ) : (
-            <div className="stay-grid">
-              {filtered.map((stay) => (
-                <Hotelcard stay={stay} key={stay.id} />
-              ))}
-            </div>
-          )}
+          <div className="stay-grid">
+            {filtered.map((stay) => (
+              <Hotelcard stay={stay} key={stay.id} />
+            ))}
+          </div>
           {!filtered.length && <div className="status">No stays found.</div>}
         </section>
       </main>

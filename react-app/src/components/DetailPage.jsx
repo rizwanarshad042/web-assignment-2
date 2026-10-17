@@ -1,19 +1,12 @@
-import { useEffect, useState } from "react";
 import { ArrowLeft, Check } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { fetchEvents, fallbackEvents } from "../events";
 import Navbar from "./Navbar";
-import date from "./date";
 
-function DetailPage({ user, bookings, onBook, onCancel, onLogout }) {
+function DetailPage({ stays, user, bookings, onBook, onCancel, onLogout }) {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [stays, setStays] = useState(fallbackEvents);
   const stay = stays.find((item) => item.id === id);
   const booked = bookings.some((item) => item.id === id);
-  useEffect(() => {
-    fetchEvents().then((result) => setStays(result.events));
-  }, []);
   if (!stay)
     return (
       <>
@@ -40,7 +33,13 @@ function DetailPage({ user, bookings, onBook, onCancel, onLogout }) {
             <span className="stay-category">{stay.category}</span>
             <h1>{stay.name}</h1>
             <div className="detail-pills">
-              <span>{date(stay.date)}</span>
+              <span>
+                {new Intl.DateTimeFormat("en-IN", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                }).format(new Date(stay.date))}
+              </span>
               <span>10:00 AM</span>
               <span>{stay.city}</span>
             </div>

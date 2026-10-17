@@ -1,6 +1,5 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import date from "./date";
 
 function Hotelcard({ stay }) {
   return (
@@ -13,7 +12,13 @@ function Hotelcard({ stay }) {
       <div className="stay-content">
         <div className="stay-top">
           <span className="stay-category">{stay.category}</span>
-          <span className="stay-date">{date(stay.date)}</span>
+          <span className="stay-date">
+            {new Intl.DateTimeFormat("en-IN", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            }).format(new Date(stay.date))}
+          </span>
         </div>
         <h3>{stay.name}</h3>
         <p>{stay.venue}</p>
