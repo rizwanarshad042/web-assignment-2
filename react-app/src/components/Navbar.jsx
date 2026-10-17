@@ -11,9 +11,6 @@ function Navbar({ user, onLogout }) {
         <span>BookSmart</span>
       </Link>
       <nav className={open ? "nav-links open" : "nav-links"}>
-        <Link className="nav-current" to="/events">
-          Find a Stay
-        </Link>
         {user && <Link to="/my-events">My Bookings</Link>}
         {user ? (
           <button className="nav-user" onClick={onLogout}>

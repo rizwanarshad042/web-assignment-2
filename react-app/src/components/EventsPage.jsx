@@ -56,7 +56,7 @@ function EventsPage({ user, bookings, onLogout }) {
             </div>
           </div>
         </section>
-        <section className="stays-section">
+        <section className="stays-section" id="featured-stays">
           <h2>Featured Stays</h2>
           <div className="stay-filters">
             <label>

@@ -5,7 +5,11 @@ import date from "./date";
 function Hotelcard({ stay }) {
   return (
     <Link className="stay-card" to={`/events/${stay.id}`}>
-      <img src={stay.image} alt={stay.name} />
+      <img
+        src={stay.image}
+        alt={stay.name}
+        style={{ aspectRatio: "4 / 3", objectFit: "cover" }}
+      />
       <div className="stay-content">
         <div className="stay-top">
           <span className="stay-category">{stay.category}</span>
