@@ -1,11 +1,15 @@
 import { Ticket, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import Navbar from "./Navbar";
+import { cancelBooking } from "../store";
 
-function MyEventsPage({ user, bookings, onCancel, onLogout }) {
+function MyEventsPage() {
+  const dispatch = useDispatch();
+  const bookings = useSelector((state) => state.bookings);
   return (
     <>
-      <Navbar user={user} onLogout={onLogout} />
+      <Navbar />
       <main className="bookings">
         <h1>My Bookings</h1>
         <p className="booking-intro">Your saved stays and reservations.</p>
@@ -22,7 +26,7 @@ function MyEventsPage({ user, bookings, onCancel, onLogout }) {
                   </p>
                 </div>
                 <button
-                  onClick={() => onCancel(stay.id)}
+                  onClick={() => dispatch(cancelBooking(stay.id))}
                 >
                   <X size={17} /> Cancel
                 </button>

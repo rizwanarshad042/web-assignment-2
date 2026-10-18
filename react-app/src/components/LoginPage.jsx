@@ -1,19 +1,22 @@
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "../store";
 
-function LoginPage({ mode, onLogin, onRegister }) {
+function LoginPage({ mode }) {
   const isLogin = mode === "login";
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const submit = (event) => {
     event.preventDefault();
     if (!form.email || !form.password || (!isLogin && !form.name))
       return setError("Please complete every field.");
-    if (isLogin)
-      onLogin({ name: form.email.split("@")[0], email: form.email });
-    else onRegister(form);
+    dispatch(
+      login(isLogin ? { name: form.email.split("@")[0], email: form.email } : form),
+    );
     navigate("/events");
   };
   return (

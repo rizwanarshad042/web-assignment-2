@@ -1,28 +1,34 @@
 import { ArrowLeft, Check } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import Navbar from "./Navbar";
+import { addBooking, cancelBooking } from "../store";
 
-function DetailPage({ stays, user, bookings, onBook, onCancel, onLogout }) {
+function DetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const stays = useSelector((state) => state.stays);
+  const user = useSelector((state) => state.auth.user);
+  const bookings = useSelector((state) => state.bookings);
   const stay = stays.find((item) => item.id === id);
   const booked = bookings.some((item) => item.id === id);
   if (!stay)
     return (
       <>
-        <Navbar user={user} onLogout={onLogout} />
+        <Navbar />
         <div className="status">Stay not found.</div>
       </>
     );
   const reserve = () => {
     if (!user) return navigate("/login");
     if (booked)
-      onCancel(stay.id);
-    else onBook(stay);
+      dispatch(cancelBooking(stay.id));
+    else dispatch(addBooking(stay));
   };
   return (
     <>
-      <Navbar user={user} onLogout={onLogout} />
+      <Navbar />
       <main className="detail-page">
         <button className="back-link" onClick={() => navigate("/events")}>
           <ArrowLeft size={16} /> Back to Stays

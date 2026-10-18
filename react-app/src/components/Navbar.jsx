@@ -1,9 +1,12 @@
-import { useState } from "react";
 import { Menu, UserRound, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logout, toggleNav } from "../store";
 
-function Navbar({ user, onLogout }) {
-  const [open, setOpen] = useState(false);
+function Navbar() {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+  const open = useSelector((state) => state.ui.navOpen);
   return (
     <header className="topbar">
       <Link to="/events" className="brand">
@@ -13,7 +16,7 @@ function Navbar({ user, onLogout }) {
       <nav className={open ? "nav-links open" : "nav-links"}>
         {user && <Link to="/my-events">My Bookings</Link>}
         {user ? (
-          <button className="nav-user" onClick={onLogout}>
+          <button className="nav-user" onClick={() => dispatch(logout())}>
             <UserRound size={16} /> {user.name.split(" ")[0]}{" "}
             <span>Log out</span>
           </button>
@@ -30,7 +33,7 @@ function Navbar({ user, onLogout }) {
       </nav>
       <button
         className="menu-button"
-        onClick={() => setOpen(!open)}
+        onClick={() => dispatch(toggleNav())}
         aria-label="Toggle menu"
       >
         {open ? <X /> : <Menu />}

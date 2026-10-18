@@ -1,11 +1,16 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ChevronDown, Search } from "lucide-react";
 import Navbar from "./Navbar";
 import Hotelcard from "./Hotelcard";
+import { useDispatch, useSelector } from "react-redux";
+import { setCategory, setSearch } from "../store";
 
-function EventsPage({ stays, user, bookings, onLogout }) {
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
+function EventsPage() {
+  const dispatch = useDispatch();
+  const stays = useSelector((state) => state.stays);
+  const user = useSelector((state) => state.auth.user);
+  const bookings = useSelector((state) => state.bookings);
+  const { search, category } = useSelector((state) => state.browse);
   const categories = ["All", ...new Set(stays.map((stay) => stay.category))];
   const filtered = useMemo(
     () =>
@@ -20,7 +25,7 @@ function EventsPage({ stays, user, bookings, onLogout }) {
   );
   return (
     <>
-      <Navbar user={user} onLogout={onLogout} />
+      <Navbar />
       <main className="home">
         <section className="hero">
           <div>
@@ -55,14 +60,14 @@ function EventsPage({ stays, user, bookings, onLogout }) {
               <Search size={17} />
               <input
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(event) => dispatch(setSearch(event.target.value))}
                 placeholder="Search by hotel or city"
               />
             </label>
             <div className="category-select">
               <select
                 value={category}
-                onChange={(event) => setCategory(event.target.value)}
+                onChange={(event) => dispatch(setCategory(event.target.value))}
               >
                 {categories.map((item) => (
                   <option key={item}>{item}</option>
