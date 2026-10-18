@@ -200,11 +200,8 @@ body {
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
+  width: 100%;
   text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -272,7 +269,7 @@ select:focus-visible {
 .home,
 .detail-page,
 .bookings {
-  width: min(100% - 48px, 1030px);
+  width: calc(100% - 80px);
   margin: 0 auto;
   text-align: left;
 }
@@ -681,7 +678,7 @@ select:focus-visible {
 
 .auth-shell {
   display: grid;
-  width: min(100% - 48px, 1030px);
+  width: calc(100% - 80px);
   min-height: 100svh;
   grid-template-rows: auto 1fr;
   gap: 42px;
