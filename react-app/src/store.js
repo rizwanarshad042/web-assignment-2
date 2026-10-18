@@ -1,71 +1,59 @@
-import { configureStore, createSlice } from "@reduxjs/toolkit";
+import { configureStore, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { fetchTicketmasterEvents } from "./ticketmaster";
 
-const stays = [
-  {
-    id: "seaside-house",
-    name: "Seaside House",
-    category: "Beach",
-    date: "2026-11-08",
-    city: "Goa",
-    venue: "Candolim Beach Road",
-    price: "$120",
-    image:
-      "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=85",
-    description:
-      "A calm coastal stay with bright rooms, fresh local food, and the beach a short walk away.",
-  },
-  {
-    id: "pine-retreat",
-    name: "Pine Retreat",
-    category: "Mountain",
-    date: "2026-12-14",
-    city: "Manali",
-    venue: "Old Manali",
-    price: "$95",
-    image:
-      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=900&q=85",
-    description:
-      "Settle into a quiet hillside retreat with warm interiors and wide views of the valley.",
-  },
-  {
-    id: "city-lanterns",
-    name: "City Lanterns",
-    category: "Urban",
-    date: "2027-01-21",
-    city: "Jaipur",
-    venue: "C-Scheme",
-    price: "$78",
-    image:
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85",
-    description:
-      "A central boutique stay close to galleries, markets, and the city's best evening dining.",
-  },
-];
+const readStorage = (key, fallback) => {
+  try {
+    return JSON.parse(localStorage.getItem(key)) || fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const savedUser = readStorage("booksmart-user", null);
+const savedRegistrations = readStorage("booksmart-registrations", {});
+
+export const fetchEvents = createAsyncThunk(
+  "events/fetchEvents",
+  async ({ keyword = "", category = "All" } = {}) =>
+    fetchTicketmasterEvents({ keyword, category }),
+);
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: { user: null },
+  initialState: { user: savedUser },
   reducers: {
     login: (state, action) => {
       state.user = action.payload;
+      localStorage.setItem("booksmart-user", JSON.stringify(action.payload));
+    },
+    register: (state, action) => {
+      state.user = action.payload;
+      localStorage.setItem("booksmart-user", JSON.stringify(action.payload));
     },
     logout: (state) => {
       state.user = null;
+      localStorage.removeItem("booksmart-user");
     },
   },
 });
 
-const bookingsSlice = createSlice({
-  name: "bookings",
-  initialState: [],
+const registrationsSlice = createSlice({
+  name: "registrations",
+  initialState: savedRegistrations,
   reducers: {
-    addBooking: (state, action) => {
-      if (!state.some((stay) => stay.id === action.payload.id)) {
-        state.push(action.payload);
+    registerForEvent: (state, action) => {
+      const { userId, event } = action.payload;
+      const current = state[userId] || [];
+      if (!current.some((item) => item.id === event.id)) {
+        state[userId] = [...current, event];
+        localStorage.setItem("booksmart-registrations", JSON.stringify(state));
       }
     },
-    cancelBooking: (state, action) =>
-      state.filter((stay) => stay.id !== action.payload),
+    cancelRegistration: (state, action) => {
+      const { userId, eventId } = action.payload;
+      state[userId] = (state[userId] || []).filter((event) => event.id !== eventId);
+      localStorage.setItem("booksmart-registrations", JSON.stringify(state));
+    },
   },
 });
 
@@ -82,6 +70,27 @@ const browseSlice = createSlice({
   },
 });
 
+const eventsSlice = createSlice({
+  name: "events",
+  initialState: { items: [], status: "idle", error: "" },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchEvents.pending, (state) => {
+        state.status = "loading";
+        state.error = "";
+      })
+      .addCase(fetchEvents.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.items = action.payload;
+      })
+      .addCase(fetchEvents.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "Unable to load events.";
+      });
+  },
+});
+
 const uiSlice = createSlice({
   name: "ui",
   initialState: { navOpen: false },
@@ -95,17 +104,17 @@ const uiSlice = createSlice({
   },
 });
 
-export const { login, logout } = authSlice.actions;
-export const { addBooking, cancelBooking } = bookingsSlice.actions;
+export const { login, register, logout } = authSlice.actions;
+export const { registerForEvent, cancelRegistration } = registrationsSlice.actions;
 export const { setSearch, setCategory } = browseSlice.actions;
 export const { toggleNav, closeNav } = uiSlice.actions;
 
 export const store = configureStore({
   reducer: {
     auth: authSlice.reducer,
-    bookings: bookingsSlice.reducer,
+    events: eventsSlice.reducer,
+    registrations: registrationsSlice.reducer,
     browse: browseSlice.reducer,
-    stays: () => stays,
     ui: uiSlice.reducer,
   },
 });

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { login } from "../store";
+import { login, register } from "../store";
 
 function LoginPage({ mode }) {
   const isLogin = mode === "login";
@@ -14,9 +14,18 @@ function LoginPage({ mode }) {
     event.preventDefault();
     if (!form.email || !form.password || (!isLogin && !form.name))
       return setError("Please complete every field.");
-    dispatch(
-      login(isLogin ? { name: form.email.split("@")[0], email: form.email } : form),
-    );
+    if (form.password.length < 6) return setError("Password must be at least 6 characters.");
+    const accounts = JSON.parse(localStorage.getItem("booksmart-accounts") || "[]");
+    if (isLogin) {
+      const account = accounts.find((item) => item.email === form.email && item.password === form.password);
+      if (!account) return setError("Email or password is incorrect.");
+      dispatch(login({ id: account.id, name: account.name, email: account.email }));
+    } else {
+      if (accounts.some((item) => item.email === form.email)) return setError("An account with this email already exists.");
+      const account = { id: crypto.randomUUID(), name: form.name, email: form.email, password: form.password };
+      localStorage.setItem("booksmart-accounts", JSON.stringify([...accounts, account]));
+      dispatch(register({ id: account.id, name: account.name, email: account.email }));
+    }
     navigate("/events");
   };
   return (
@@ -28,7 +37,7 @@ function LoginPage({ mode }) {
       <div className="auth-card">
         <div className="auth-copy">
           <p>
-            Stay somewhere
+            Find something
             <br />
             <b>worth remembering.</b>
           </p>
@@ -38,7 +47,7 @@ function LoginPage({ mode }) {
           <p>
             {isLogin
               ? "Log in to manage your bookings."
-              : "Save your favorite stays and book with ease."}
+              : "Save your favorite events and register with ease."}
           </p>
           <form onSubmit={submit}>
             {!isLogin && (

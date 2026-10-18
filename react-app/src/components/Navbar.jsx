@@ -14,7 +14,7 @@ function Navbar() {
         <span>BookSmart</span>
       </Link>
       <nav className={open ? "nav-links open" : "nav-links"}>
-        {user && <Link to="/my-events">My Bookings</Link>}
+        {user && <Link to="/my-events">My Events</Link>}
         {user ? (
           <button className="nav-user" onClick={() => dispatch(logout())}>
             <UserRound size={16} /> {user.name.split(" ")[0]}{" "}
